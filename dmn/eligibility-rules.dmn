@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/"
+             xmlns:dmndi="https://www.omg.org/spec/DMN/20191111/DMNDI/"
+             xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/"
+             xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/"
+             xmlns:modeler="http://camunda.org/schema/modeler/1.0"
+             id="Definitions_EligibilityRules"
+             name="Eligibility Rules"
+             namespace="http://camunda.org/schema/dmn/nyl/eligibility"
+             exporter="Claude Code"
+             exporterVersion="1.0"
+             modeler:executionPlatform="Camunda Cloud"
+             modeler:executionPlatformVersion="8.9.0">
+
+  <decision id="eligibility-rules" name="Eligibility Rules">
+    <decisionTable id="DecisionTable_Eligibility" hitPolicy="FIRST">
+
+      <input id="Input_AgentStatus" label="Agent Status">
+        <inputExpression id="InputExpression_AgentStatus" typeRef="string">
+          <text>agentStatus</text>
+        </inputExpression>
+      </input>
+
+      <input id="Input_AgentTenure" label="Agent Tenure">
+        <inputExpression id="InputExpression_AgentTenure" typeRef="string">
+          <text>agentTenure</text>
+        </inputExpression>
+      </input>
+
+      <input id="Input_ComplianceRating" label="Compliance Rating">
+        <inputExpression id="InputExpression_ComplianceRating" typeRef="number">
+          <text>complianceRating</text>
+        </inputExpression>
+      </input>
+
+      <input id="Input_AgentProactiveStatus" label="Proactive Status">
+        <inputExpression id="InputExpression_AgentProactiveStatus" typeRef="string">
+          <text>agentProactiveStatus</text>
+        </inputExpression>
+      </input>
+
+      <input id="Input_LicenseType" label="License Type">
+        <inputExpression id="InputExpression_LicenseType" typeRef="string">
+          <text>licenseType</text>
+        </inputExpression>
+      </input>
+
+      <output id="Output_IsEligible" label="Eligible" name="isEligible" typeRef="boolean"/>
+      <output id="Output_IneligibilityReason" label="Reason" name="ineligibilityReason" typeRef="string"/>
+
+      <rule id="Rule_1_FullyEligible">
+        <description>Active agent with 1st Prior tenure, compliance >= 3, proactive, Life+Health licensed.</description>
+        <inputEntry id="InputEntry_1_Status"><text>"Active"</text></inputEntry>
+        <inputEntry id="InputEntry_1_Tenure"><text>"1st Prior"</text></inputEntry>
+        <inputEntry id="InputEntry_1_Compliance"><text>&gt;= 3</text></inputEntry>
+        <inputEntry id="InputEntry_1_Proactive"><text>"Proactive"</text></inputEntry>
+        <inputEntry id="InputEntry_1_License"><text>"Life + Health"</text></inputEntry>
+        <outputEntry id="OutputEntry_1_IsEligible"><text>true</text></outputEntry>
+        <outputEntry id="OutputEntry_1_Reason"><text>""</text></outputEntry>
+      </rule>
+
+      <rule id="Rule_2_TenureTooShort">
+        <description>Active agent under contract for 6 months or less is ineligible.</description>
+        <inputEntry id="InputEntry_2_Status"><text>"Active"</text></inputEntry>
+        <inputEntry id="InputEntry_2_Tenure"><text>"Contract &lt;= 6 months"</text></inputEntry>
+        <inputEntry id="InputEntry_2_Compliance"><text></text></inputEntry>
+        <inputEntry id="InputEntry_2_Proactive"><text></text></inputEntry>
+        <inputEntry id="InputEntry_2_License"><text></text></inputEntry>
+        <outputEntry id="OutputEntry_2_IsEligible"><text>false</text></outputEntry>
+        <outputEntry id="OutputEntry_2_Reason"><text>"Tenure too short"</text></outputEntry>
+      </rule>
+
+      <rule id="Rule_3_ComplianceLow">
+        <description>Reinstated agent below compliance threshold is ineligible.</description>
+        <inputEntry id="InputEntry_3_Status"><text>"Active Reinstated"</text></inputEntry>
+        <inputEntry id="InputEntry_3_Tenure"><text></text></inputEntry>
+        <inputEntry id="InputEntry_3_Compliance"><text>&lt; 3</text></inputEntry>
+        <inputEntry id="InputEntry_3_Proactive"><text></text></inputEntry>
+        <inputEntry id="InputEntry_3_License"><text></text></inputEntry>
+        <outputEntry id="OutputEntry_3_IsEligible"><text>false</text></outputEntry>
+        <outputEntry id="OutputEntry_3_Reason"><text>"Compliance rating below threshold"</text></outputEntry>
+      </rule>
+
+      <rule id="Rule_4_Retired">
+        <description>Retired agents are ineligible regardless of other attributes.</description>
+        <inputEntry id="InputEntry_4_Status"><text>"Retired"</text></inputEntry>
+        <inputEntry id="InputEntry_4_Tenure"><text></text></inputEntry>
+        <inputEntry id="InputEntry_4_Compliance"><text></text></inputEntry>
+        <inputEntry id="InputEntry_4_Proactive"><text></text></inputEntry>
+        <inputEntry id="InputEntry_4_License"><text></text></inputEntry>
+        <outputEntry id="OutputEntry_4_IsEligible"><text>false</text></outputEntry>
+        <outputEntry id="OutputEntry_4_Reason"><text>"Agent retired"</text></outputEntry>
+      </rule>
+
+      <rule id="Rule_5_NotProactive">
+        <description>Agents flagged Not Proactive are ineligible.</description>
+        <inputEntry id="InputEntry_5_Status"><text></text></inputEntry>
+        <inputEntry id="InputEntry_5_Tenure"><text></text></inputEntry>
+        <inputEntry id="InputEntry_5_Compliance"><text></text></inputEntry>
+        <inputEntry id="InputEntry_5_Proactive"><text>"Not Proactive"</text></inputEntry>
+        <inputEntry id="InputEntry_5_License"><text></text></inputEntry>
+        <outputEntry id="OutputEntry_5_IsEligible"><text>false</text></outputEntry>
+        <outputEntry id="OutputEntry_5_Reason"><text>"Agent not proactive"</text></outputEntry>
+      </rule>
+
+    </decisionTable>
+  </decision>
+
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="DMNDiagram_Eligibility">
+      <dmndi:DMNShape id="DMNShape_Eligibility" dmnElementRef="eligibility-rules">
+        <dc:Bounds height="80" width="180" x="160" y="100"/>
+      </dmndi:DMNShape>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</definitions>

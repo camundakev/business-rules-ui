@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/"
+             xmlns:dmndi="https://www.omg.org/spec/DMN/20191111/DMNDI/"
+             xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/"
+             xmlns:di="http://www.omg.org/spec/DMN/20180521/DI/"
+             xmlns:modeler="http://camunda.org/schema/modeler/1.0"
+             id="Definitions_RecommendationRules"
+             name="Recommendation Rules"
+             namespace="http://camunda.org/schema/dmn/nyl/recommendation"
+             exporter="Claude Code"
+             exporterVersion="1.0"
+             modeler:executionPlatform="Camunda Cloud"
+             modeler:executionPlatformVersion="8.9.0">
+
+  <decision id="recommendation-rules" name="Recommendation Rules">
+    <decisionTable id="DecisionTable_Recommendation" hitPolicy="COLLECT">
+
+      <input id="Input_CouncilStatus" label="Council Status">
+        <inputExpression id="InputExpression_CouncilStatus" typeRef="string">
+          <text>councilStatus</text>
+        </inputExpression>
+      </input>
+
+      <input id="Input_AttemptRate" label="Attempt Rate">
+        <inputExpression id="InputExpression_AttemptRate" typeRef="number">
+          <text>attemptRate</text>
+        </inputExpression>
+      </input>
+
+      <input id="Input_NylicuTraining" label="NYLIC Training">
+        <inputExpression id="InputExpression_NylicuTraining" typeRef="string">
+          <text>nylicuTraining</text>
+        </inputExpression>
+      </input>
+
+      <output id="Output_RecommendationType" label="Type" name="recommendationType" typeRef="string"/>
+      <output id="Output_RecommendationText" label="Display Text" name="recommendationText" typeRef="string"/>
+      <output id="Output_RecommendationLink" label="Link" name="recommendationLink" typeRef="string"/>
+
+      <rule id="Rule_R1_Enrollment">
+        <description>Agents with no council status: nudge them to enroll in AARP LTC Options to grow lead pipeline.</description>
+        <inputEntry id="InputEntry_R1_Council"><text>"No Council"</text></inputEntry>
+        <inputEntry id="InputEntry_R1_AttemptRate"><text></text></inputEntry>
+        <inputEntry id="InputEntry_R1_Training"><text></text></inputEntry>
+        <outputEntry id="OutputEntry_R1_Type"><text>"enrollment"</text></outputEntry>
+        <outputEntry id="OutputEntry_R1_Text"><text>"Enroll in AARP LTC Options to grow your lead pipeline"</text></outputEntry>
+        <outputEntry id="OutputEntry_R1_Link"><text>"/programs/aarp-ltc-options"</text></outputEntry>
+      </rule>
+
+      <rule id="Rule_R2_Performance">
+        <description>Attempt rate below 50% threshold: surface a call-strategy review.</description>
+        <inputEntry id="InputEntry_R2_Council"><text></text></inputEntry>
+        <inputEntry id="InputEntry_R2_AttemptRate"><text>&lt; 0.5</text></inputEntry>
+        <inputEntry id="InputEntry_R2_Training"><text></text></inputEntry>
+        <outputEntry id="OutputEntry_R2_Type"><text>"performance"</text></outputEntry>
+        <outputEntry id="OutputEntry_R2_Text"><text>"Your attempt rate is below program threshold — review call strategy"</text></outputEntry>
+        <outputEntry id="OutputEntry_R2_Link"><text>"/coaching/call-strategy"</text></outputEntry>
+      </rule>
+
+      <rule id="Rule_R3_Training">
+        <description>NYLIC University training off-track: prompt completion to maintain eligibility.</description>
+        <inputEntry id="InputEntry_R3_Council"><text></text></inputEntry>
+        <inputEntry id="InputEntry_R3_AttemptRate"><text></text></inputEntry>
+        <inputEntry id="InputEntry_R3_Training"><text>"Not On Track"</text></inputEntry>
+        <outputEntry id="OutputEntry_R3_Type"><text>"training"</text></outputEntry>
+        <outputEntry id="OutputEntry_R3_Text"><text>"Complete NYLIC University training to maintain program eligibility"</text></outputEntry>
+        <outputEntry id="OutputEntry_R3_Link"><text>"/training/nylic-university"</text></outputEntry>
+      </rule>
+
+    </decisionTable>
+  </decision>
+
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram id="DMNDiagram_Recommendation">
+      <dmndi:DMNShape id="DMNShape_Recommendation" dmnElementRef="recommendation-rules">
+        <dc:Bounds height="80" width="180" x="160" y="100"/>
+      </dmndi:DMNShape>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</definitions>

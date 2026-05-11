@@ -1,0 +1,15 @@
+{
+  "name": "nyl-rules-poc-workers",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Job workers for the NYL Lead Programs Management PoC (auto-unenroll-agent, hold-agent-status).",
+  "scripts": {
+    "start": "node --env-file=../.env index.js",
+    "dev": "node --env-file=../.env --watch index.js"
+  },
+  "dependencies": {
+    "@camunda8/sdk": "^8.8.11",
+    "express": "^5.2.1"
+  }
+}
