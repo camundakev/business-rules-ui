@@ -6,6 +6,7 @@ import { ResultsPanel } from './components/AgentSimulator/ResultsPanel.jsx';
 import { DecisionList } from './components/RuleManager/DecisionList.jsx';
 import { DecisionTableEditor } from './components/RuleManager/DecisionTableEditor.jsx';
 import { VersionHistory } from './components/RuleManager/VersionHistory.jsx';
+import { NewLeadProgram } from './components/RuleManager/NewLeadProgram.jsx';
 import {
   startProcessInstance,
   listDecisionInstancesForProcess,
@@ -17,9 +18,9 @@ const TABS = [
   { id: 'rules', label: 'Rule Manager' },
 ];
 
-function AgentSimulator() {
+function AgentSimulator({ programs }) {
   const [selectedAgent, setSelectedAgent] = useState(AGENTS[0]);
-  const [program, setProgram] = useState(LEAD_PROGRAMS[0]);
+  const [program, setProgram] = useState(programs[0]);
   const [running, setRunning] = useState(false);
   const [result, setResult] = useState(null);
   const [audit, setAudit] = useState(null);
@@ -70,7 +71,7 @@ function AgentSimulator() {
       <section className="panel">
         <div className="run-row">
           <ProgramSelector
-            programs={LEAD_PROGRAMS}
+            programs={programs}
             value={program}
             onChange={setProgram}
           />
@@ -90,12 +91,13 @@ function AgentSimulator() {
   );
 }
 
-function RuleManager() {
+function RuleManager({ onProgramCreated }) {
   const [decisions, setDecisions] = useState([]);
   const [selected, setSelected] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [refreshSignal, setRefreshSignal] = useState(0);
+  const [mode, setMode] = useState('list'); // 'list' | 'new'
 
   async function loadDecisions() {
     setLoading(true);
@@ -136,11 +138,28 @@ function RuleManager() {
     }, 2500);
   }
 
+  function handleProgramCreated({ name }) {
+    onProgramCreated?.(name);
+    setMode('list');
+    handleDeployed();
+  }
+
   return (
     <>
-      <div className="hint">
-        Edit a DMN decision table inline, deploy it as a new version, and re-run an agent in the
-        Simulator tab to see the rule change take effect — no Modeler, no IT pipeline.
+      <div className="rule-manager__header">
+        <div className="hint">
+          Edit a DMN decision table inline, deploy it as a new version, and re-run an agent in the
+          Simulator tab to see the rule change take effect — no Modeler, no IT pipeline.
+        </div>
+        {mode === 'list' && (
+          <button
+            type="button"
+            className="run-btn"
+            onClick={() => setMode('new')}
+          >
+            + New Lead Program
+          </button>
+        )}
       </div>
     <div className="rule-manager">
       <aside className="rule-manager__sidebar">
@@ -154,15 +173,24 @@ function RuleManager() {
         />
       </aside>
       <section className="rule-manager__main">
-        <DecisionTableEditor decision={selected} onDeployed={handleDeployed} />
-        {selected && (
-          <VersionHistory
-            decisionDefinitionId={selected.decisionDefinitionId}
-            currentKey={selected.decisionDefinitionKey}
-            onSelectVersion={setSelected}
-            onRestored={handleDeployed}
-            refreshSignal={refreshSignal}
+        {mode === 'new' ? (
+          <NewLeadProgram
+            onCreated={handleProgramCreated}
+            onCancel={() => setMode('list')}
           />
+        ) : (
+          <>
+            <DecisionTableEditor decision={selected} onDeployed={handleDeployed} />
+            {selected && (
+              <VersionHistory
+                decisionDefinitionId={selected.decisionDefinitionId}
+                currentKey={selected.decisionDefinitionKey}
+                onSelectVersion={setSelected}
+                onRestored={handleDeployed}
+                refreshSignal={refreshSignal}
+              />
+            )}
+          </>
         )}
       </section>
     </div>
@@ -172,6 +200,11 @@ function RuleManager() {
 
 function App() {
   const [tab, setTab] = useState('simulator');
+  const [programs, setPrograms] = useState(LEAD_PROGRAMS);
+
+  function addProgram(name) {
+    setPrograms((current) => (current.includes(name) ? current : [...current, name]));
+  }
 
   return (
     <div className="app">
@@ -194,8 +227,8 @@ function App() {
       </nav>
 
       <main className="app__main">
-        {tab === 'simulator' && <AgentSimulator />}
-        {tab === 'rules' && <RuleManager />}
+        {tab === 'simulator' && <AgentSimulator programs={programs} />}
+        {tab === 'rules' && <RuleManager onProgramCreated={addProgram} />}
       </main>
     </div>
   );

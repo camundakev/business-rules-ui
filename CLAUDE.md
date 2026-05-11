@@ -1,10 +1,3 @@
-## Stack defaults
-- Frontend: React + Vite
-- Workers: Node.js (@camunda8/sdk)
-- Deploy target: Camunda SaaS (cloud.camunda.io)
-- DMN editor: dmn-js (bpmn-io/dmn-js)
-- All Camunda API calls proxied via Vite — never call cluster URL directly from frontend
-
 # NYL Lead Programs Management — Camunda PoC Plan
 **Handoff document for Claude Code / VS Code development**
 
@@ -214,12 +207,68 @@ Sections:
 - **Deploy button:** serialize the edited table back to valid DMN XML and deploy it as a new version via the Camunda 8 REST API — display the new version number on success
 - **Version history:** use the Camunda 8 REST API to list prior versions of a decision definition — include a "restore" option that redeploys a previous DMN XML version
 
+- **Create New Lead Program:** a "New Lead Program" button opens a program builder flow (see full spec below)
+
 Required Camunda 8 REST API capabilities (let the dev kit resolve exact endpoints):
 - List all decision definitions
 - Fetch a single decision definition by key
 - Fetch the DMN XML for a decision requirements definition
 - Deploy a new resource (BPMN or DMN) to the cluster
 - List decision instances for audit history
+
+---
+
+#### Create New Lead Program — feature spec
+
+This feature addresses NYL PoC scenario 1: business users creating a new Lead Program with eligibility rules via UI, without IT involvement.
+
+**Entry point:** "New Lead Program" button in the Rule Manager tab header.
+
+**Builder flow (single-page form, no modal):**
+
+1. **Program name field** — free text; becomes the DMN decision ID (slugified, e.g. "AARP LTC Options" → `aarp-ltc-options`) and the display name shown in the Agent Simulator dropdown
+2. **Conditions builder** — a dynamic list of condition rows, each with:
+   - Attribute selector (dropdown, populated from the known attribute list below)
+   - Operator selector (dropdown: `=`, `!=`, `<`, `<=`, `>`, `>=`)
+   - Value input (text or number field, type inferred from the selected attribute)
+   - Remove row button
+3. **Add Condition button** — appends a new empty condition row
+4. **Condition relationship toggle** — AND / OR selector that applies globally across all conditions (sufficient for the PoC; no nested grouping required)
+5. **Output section** — fixed: output variable is `isEligible` (boolean), ineligibility reason is `ineligibilityReason` (string). These are hardcoded — the user does not configure outputs.
+6. **Save & Activate button** — generates DMN XML from the form state, deploys it to Camunda via the REST API, then returns to the Decision Definitions list where the new program appears immediately
+
+**Attribute list for the condition builder dropdown:**
+
+| Display label | Variable name | Type |
+|---|---|---|
+| Agent Status | `agentStatus` | string |
+| Agent Tenure | `agentTenure` | string |
+| Compliance Rating | `complianceRating` | number |
+| Proactive Status | `agentProactiveStatus` | string |
+| License Type | `licenseType` | string |
+| Council Status | `councilStatus` | string |
+| Attempt Rate | `attemptRate` | number |
+| Months Behind Proactive | `monthsBehindProactive` | string |
+| NYLIC University Training | `nylicuTraining` | string |
+| Rolling FYC | `rollingFYC` | number |
+
+**DMN XML generation approach:**
+
+Do not use dmn-js for this flow. Generate the DMN XML programmatically in a `generateDmn.js` utility function. The function takes the program name, condition rows, and AND/OR relationship as inputs and outputs a valid DMN 1.3 XML string. Each condition row becomes one input column in the decision table. All conditions on a single row represent AND logic; OR logic is implemented as multiple rows with the same output. Use hit policy FIRST. The generated DMN must be deployable to Camunda SaaS without modification.
+
+**Agent Simulator integration:**
+
+After successful deployment, the new Lead Program name must appear in the Lead Program selector dropdown in the Agent Simulator tab without a page refresh. Manage the program list in shared React state (or a simple context) so the Simulator picks up the new entry immediately.
+
+**NYL PoC success criteria this feature addresses:**
+
+- Business users can configure rules via UI without IT involvement ✓
+- System supports adding and removing conditions ✓
+- Multi-condition rule logic is executed correctly ✓
+- Eligibility output matches expected test cases ✓
+- Rules can be saved and activated without deployment pipeline ✓
+
+---
 
 #### Tab 2 — Agent Simulator
 
@@ -285,10 +334,13 @@ Demo script note:
         │   └── camunda.js             ← all Camunda REST calls in one module
         ├── data/
         │   └── agents.js              ← hardcoded agent profiles
+        ├── utils/
+        │   └── generateDmn.js         ← programmatic DMN XML generation for new programs
         ├── components/
         │   ├── RuleManager/
         │   │   ├── DecisionList.jsx
         │   │   ├── DecisionTableEditor.jsx
+        │   │   ├── NewLeadProgram.jsx  ← create new program builder form
         │   │   └── VersionHistory.jsx
         │   └── AgentSimulator/
         │       ├── AgentCard.jsx
@@ -310,9 +362,10 @@ Use the `camunda-ai-dev-kit` slash commands where indicated. Work in this order 
 5. **Build workers** — `/new-worker` for `auto-unenroll-agent` and `hold-agent-status`; both can live in a single `workers/index.js`
 6. **Build `camunda.js` API module** — centralise all Camunda REST calls in one module; use intent descriptions from the frontend spec above and let the dev kit resolve correct endpoint patterns; verify each capability works individually before building UI on top
 7. **Build Agent Simulator tab** — hardcoded agents, program selector, process start, result polling, results panel with outcome badges and audit log
-8. **Build Rule Manager tab** — decision definitions list, DMN XML fetch, editable table renderer, deploy button, version history with restore
-9. **Polish UI** — consistent styling, loading states, error handling, result badges
-10. **End-to-end demo run** — run each of the 5 mock agents, verify all outcomes match expected results in the demo script
+8. **Build Rule Manager tab** — decision definitions list, DMN XML fetch, editable table renderer (dmn-js), deploy button, version history with restore
+9. **Build Create New Lead Program feature** — `NewLeadProgram.jsx` builder form, `generateDmn.js` utility (AND/OR condition logic → valid DMN 1.3 XML), deploy on save, shared state update so new program appears in Agent Simulator dropdown immediately
+10. **Polish UI** — consistent styling, loading states, error handling, result badges
+11. **End-to-end demo run** — run each of the 5 mock agents, verify all outcomes match expected results in the demo script; create a new Lead Program from scratch and run an agent against it
 
 ---
 
@@ -321,6 +374,8 @@ Use the `camunda-ai-dev-kit` slash commands where indicated. Work in this order 
 | NYL requirement | How it's addressed in this PoC |
 |---|---|
 | Business users configure rules via UI without IT | Rule Manager tab: edit DMN table, deploy — no Camunda UI touched |
+| Create new Lead Program with 4+ attributes via UI | New Lead Program builder: attribute selector, operators, values, AND/OR logic, Save & Activate |
+| System supports adding and removing conditions | Condition builder: dynamic add/remove rows |
 | Multi-condition rule logic executes correctly | DMN tables with AND/OR logic across 4+ attributes |
 | Rules saved and activated without deployment pipeline | One-click Deploy button in frontend calls Camunda deployment API directly |
 | Version history retained for audit | Version History panel in Rule Manager; decision instances audit log |
