@@ -398,6 +398,18 @@ body {
   margin: 0;
 }
 
+/* Training status card — shown when the recommendation set includes
+   a recommendationType: "training" entry. Visually distinct from
+   regular result cards so the user notices the parked-process state. */
+.result-card--training {
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+}
+
+.result-card--training .result-card__title {
+  color: #047857;
+}
+
 /* Badges */
 
 .badge {

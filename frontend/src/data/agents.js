@@ -27,6 +27,7 @@ export const AGENTS = [
     attemptRate: 0.72,
     monthsBehindProactive: '',
     nylicuTraining: '',
+    agentEmail: 'kevin.coronato@camunda.com',
   },
   {
     agentCode: '1002',
@@ -41,6 +42,7 @@ export const AGENTS = [
     attemptRate: 0.41,
     monthsBehindProactive: '2 Months behind',
     nylicuTraining: '',
+    agentEmail: 'kevin.coronato@camunda.com',
   },
   {
     agentCode: '1003',
@@ -55,6 +57,7 @@ export const AGENTS = [
     attemptRate: 0.31,
     monthsBehindProactive: '4+ Months behind',
     nylicuTraining: '',
+    agentEmail: 'kevin.coronato@camunda.com',
   },
   {
     agentCode: '1004',
@@ -69,6 +72,7 @@ export const AGENTS = [
     attemptRate: 0.88,
     monthsBehindProactive: '',
     nylicuTraining: '',
+    agentEmail: 'kevin.coronato@camunda.com',
   },
   {
     agentCode: '1005',
@@ -83,6 +87,7 @@ export const AGENTS = [
     attemptRate: 0.65,
     monthsBehindProactive: '',
     nylicuTraining: '',
+    agentEmail: 'kevin.coronato@camunda.com',
   },
 ];
 

@@ -17,6 +17,9 @@ import {
   startProcessInstance,
   listDecisionInstancesForProcess,
   listDecisionDefinitions,
+  listElementInstances,
+  fetchProcessVariables,
+  getProcessInstance,
   deleteResource,
   evaluateDecision,
 } from './api/camunda.js';
@@ -37,6 +40,86 @@ const TABS = [
 // Decision-definitions/search is eventually consistent — wait briefly
 // after a deploy before refetching so the new version actually appears.
 const DEPLOY_REFRESH_DELAY_MS = 2500;
+
+// Process-instance polling tuning. The fast happy paths
+// (Eligible-with-recommendations / Ineligible-with-unenroll) finish in
+// ~1–3 seconds. The training path parks indefinitely on a 30-day
+// timer; we detect that by seeing the PI stay ACTIVE while the only
+// active element instances are pure wait states (timer, user task,
+// message catch). Cap polling at ~45 s for safety.
+const POLL_INTERVAL_MS = 1000;
+const POLL_MAX_ATTEMPTS = 45;
+
+// Camunda BPMN element types that mean "actively running" — if any of
+// these are still ACTIVE on the PI, the process is still working and
+// we should keep polling. Anything not in this set is treated as a
+// wait state.
+const RUNNING_ELEMENT_TYPES = new Set([
+  'SERVICE_TASK',
+  'BUSINESS_RULE_TASK',
+  'SCRIPT_TASK',
+  'SEND_TASK',
+  'CALL_ACTIVITY',
+  'SUB_PROCESS',
+  'EVENT_SUB_PROCESS',
+  'MULTI_INSTANCE_BODY',
+  'PROCESS', // the process element itself is always active; ignored below
+]);
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// Poll a process instance until it reaches a settled state — either a
+// terminal end (COMPLETED / TERMINATED) or a parked wait state where
+// no active element is "running". Returns { kind, variables,
+// waitingElements? }.
+async function pollProcessInstance(processInstanceKey) {
+  for (let attempt = 0; attempt < POLL_MAX_ATTEMPTS; attempt += 1) {
+    const pi = await getProcessInstance(processInstanceKey).catch(() => null);
+    const state = pi?.state;
+
+    if (state === 'COMPLETED' || state === 'TERMINATED') {
+      const variables = await fetchProcessVariables(processInstanceKey).catch(() => ({}));
+      return { kind: state === 'COMPLETED' ? 'completed' : 'terminated', variables };
+    }
+
+    if (state === 'ACTIVE') {
+      // Give Zeebe a moment to register the initial element instances
+      // before deciding whether the PI is parked. Skip the wait-state
+      // check on the first attempt.
+      if (attempt >= 1) {
+        const el = await listElementInstances({
+          filter: { processInstanceKey, state: 'ACTIVE' },
+          page: { limit: 50 },
+        }).catch(() => null);
+        const active = el?.items ?? [];
+        // Filter out the root PROCESS element which is always active.
+        const nonProcess = active.filter((e) => {
+          const t = (e.type ?? e.elementType ?? e.bpmnElementType ?? '').toUpperCase();
+          return t !== 'PROCESS' && t !== '';
+        });
+        if (nonProcess.length > 0) {
+          const stillRunning = nonProcess.some((e) => {
+            const t = (e.type ?? e.elementType ?? e.bpmnElementType ?? '').toUpperCase();
+            return RUNNING_ELEMENT_TYPES.has(t);
+          });
+          if (!stillRunning) {
+            const variables = await fetchProcessVariables(processInstanceKey).catch(() => ({}));
+            return { kind: 'waiting', variables, waitingElements: nonProcess };
+          }
+        }
+      }
+    }
+
+    await sleep(POLL_INTERVAL_MS);
+  }
+  // Polling cap reached. Surface what we have — likely a slow worker
+  // or unexpected state — but don't throw, since the user may still
+  // get a useful read from variables-so-far.
+  const variables = await fetchProcessVariables(processInstanceKey).catch(() => ({}));
+  return { kind: 'timeout', variables };
+}
 
 function AgentSimulator({ programs, onProgramUnregistered }) {
   const [customAgents, setCustomAgents] = useState(() => loadCustomAgents());
@@ -118,12 +201,28 @@ function AgentSimulator({ programs, onProgramUnregistered }) {
         recommendationDecisionId: program.recommendationId,
         unenrollmentDecisionId: program.unenrollmentId,
       };
-      const piResult = await startProcessInstance({
+      // Start without awaitCompletion so the process can park on a
+      // long-lived timer / user task (training path waits 30 days)
+      // without our request hanging for the cluster's full timeout.
+      const startRes = await startProcessInstance({
         processDefinitionId: 'lead-program-evaluation',
         variables,
+        awaitCompletion: false,
+        requestTimeout: 10000,
       });
-      setResult(piResult);
-      const auditRes = await listDecisionInstancesForProcess(piResult.processInstanceKey);
+      const processInstanceKey = startRes.processInstanceKey;
+      const settled = await pollProcessInstance(processInstanceKey);
+      // In either terminal or waiting state, render what we have. The
+      // process being "parked" on a timer/user task is an expected
+      // outcome (training path); not an error.
+      setResult({
+        processInstanceKey,
+        variables: settled.variables,
+        state: settled.kind, // 'completed' | 'waiting' | 'terminated'
+        waitingElements: settled.waitingElements,
+        observedAt: new Date().toISOString(),
+      });
+      const auditRes = await listDecisionInstancesForProcess(processInstanceKey);
       setAudit(auditRes.items || []);
     } catch (e) {
       setError({ kind: 'generic', message: e.message });

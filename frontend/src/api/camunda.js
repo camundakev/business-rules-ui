@@ -145,6 +145,32 @@ export function listVariables({ processInstanceKey, filter, sort, page } = {}) {
   });
 }
 
+// Search element instances. Used during polling to tell apart a process
+// that's actively executing (worker job in flight, service task running)
+// from one that's parked on a wait state (timer, user task, message catch).
+export function listElementInstances({ filter, sort, page } = {}) {
+  return jsonRequest('/element-instances/search', {
+    method: 'POST',
+    body: { filter, sort, page },
+  });
+}
+
+// Fetch a process instance's variables and decode them into a plain map.
+// Each variable's `value` is a JSON-encoded string in Camunda's response;
+// this parses each one back to its native JS shape so callers can read
+// e.g. `vars.eligibilityResult.isEligible` directly.
+export async function fetchProcessVariables(processInstanceKey) {
+  const res = await listVariables({ processInstanceKey, page: { limit: 200 } });
+  const map = {};
+  for (const v of res?.items ?? []) {
+    let parsed;
+    try { parsed = JSON.parse(v.value); }
+    catch { parsed = v.value; }
+    map[v.name] = parsed;
+  }
+  return map;
+}
+
 export function listDecisionInstancesForProcess(processInstanceKey) {
   return listDecisionInstances({
     filter: { processInstanceKey },

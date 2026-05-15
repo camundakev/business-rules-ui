@@ -16,12 +16,18 @@ function initialFieldValue(attr) {
 }
 
 function defaultAgentDraft() {
-  const draft = { agentCode: '', agentName: '' };
+  const draft = { agentCode: '', agentName: '', agentEmail: '' };
   for (const attr of ATTRIBUTE_SCHEMA) {
     draft[attr.name] = initialFieldValue(attr);
   }
   return draft;
 }
+
+// Lightweight email shape check — accepts anything with a single @ and
+// at least one dot in the domain. The actual delivery is handled by
+// the BPMN's external email connector; we just want to catch obvious
+// typos before the agent is saved.
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function coerceForRuntime(draft) {
   // Convert numeric attributes to numbers so the Camunda DMN engine
@@ -30,6 +36,7 @@ function coerceForRuntime(draft) {
   const out = {
     agentCode: draft.agentCode.trim(),
     agentName: draft.agentName.trim(),
+    agentEmail: draft.agentEmail.trim(),
   };
   for (const attr of ATTRIBUTE_SCHEMA) {
     const raw = draft[attr.name];
@@ -85,8 +92,11 @@ export function NewAgentForm({ existingCodes, onSave, onCancel }) {
 
   const trimmedCode = draft.agentCode.trim();
   const trimmedName = draft.agentName.trim();
+  const trimmedEmail = draft.agentEmail.trim();
   const codeConflict =
     trimmedCode.length > 0 && existingCodes.includes(trimmedCode);
+  const emailInvalid =
+    trimmedEmail.length > 0 && !EMAIL_RE.test(trimmedEmail);
   const numericValid = ATTRIBUTE_SCHEMA.every((attr) => {
     if (attr.inputControl === 'dropdown') return true;
     const v = draft[attr.name];
@@ -96,7 +106,9 @@ export function NewAgentForm({ existingCodes, onSave, onCancel }) {
   const canSave =
     trimmedCode.length > 0 &&
     trimmedName.length > 0 &&
+    trimmedEmail.length > 0 &&
     !codeConflict &&
+    !emailInvalid &&
     numericValid;
 
   function handleSave() {
@@ -140,6 +152,22 @@ export function NewAgentForm({ existingCodes, onSave, onCancel }) {
               onChange={(e) => update('agentName', e.target.value)}
               placeholder="e.g. Avery Smith"
             />
+          </label>
+          <label className="new-agent__field">
+            <span className="new-agent__field-label">Agent email</span>
+            <input
+              className={`new-agent__input ${emailInvalid ? 'invalid' : ''}`}
+              type="email"
+              value={draft.agentEmail}
+              onChange={(e) => update('agentEmail', e.target.value)}
+              placeholder="e.g. agent@example.com"
+              autoComplete="off"
+            />
+            {emailInvalid && (
+              <span className="new-agent__field-error small">
+                Doesn't look like a valid email address.
+              </span>
+            )}
           </label>
         </div>
       </div>
