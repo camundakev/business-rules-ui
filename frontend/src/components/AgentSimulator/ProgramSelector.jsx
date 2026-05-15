@@ -4,11 +4,16 @@ export function ProgramSelector({ programs, value, onChange }) {
       <span className="program-selector__label">Lead Program</span>
       <select
         className="program-selector__select"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
+        value={value?.displayName ?? ''}
+        onChange={(e) => {
+          const next = programs.find((p) => p.displayName === e.target.value);
+          if (next) onChange(next);
+        }}
       >
         {programs.map((p) => (
-          <option key={p} value={p}>{p}</option>
+          <option key={p.displayName} value={p.displayName}>
+            {p.displayName}
+          </option>
         ))}
       </select>
     </label>

@@ -94,6 +94,85 @@ body {
   font-weight: 600;
 }
 
+.panel__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.panel__header h2 {
+  margin: 0;
+}
+
+/* New-agent form ------------------------------------------------------- */
+
+.new-agent {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.new-agent__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.new-agent__header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.new-agent__section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.new-agent__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.new-agent__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.new-agent__field-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.new-agent__input {
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font: inherit;
+  background: var(--surface);
+  min-width: 0;
+}
+
+.new-agent__input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+}
+
+.new-agent__input.invalid {
+  border-color: var(--bad);
+}
+
+.new-agent__field-error {
+  color: var(--bad);
+}
+
 .muted { color: var(--muted); }
 
 /* Agent grid ------------------------------------------------------------ */
@@ -105,15 +184,12 @@ body {
 }
 
 .agent-card {
-  text-align: left;
+  position: relative;
   background: var(--surface);
   border: 2px solid var(--border);
   border-radius: 8px;
-  padding: 14px;
-  cursor: pointer;
-  font: inherit;
-  color: inherit;
-  transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  overflow: hidden;
 }
 
 .agent-card:hover {
@@ -123,6 +199,39 @@ body {
 .agent-card--selected {
   border-color: var(--primary);
   box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.12);
+}
+
+.agent-card__select {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  padding: 14px;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+
+.agent-card__delete {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  padding: 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+
+.agent-card__delete:hover {
+  background: #fee2e2;
+  color: var(--bad);
 }
 
 .agent-card__header {
@@ -409,7 +518,17 @@ body {
   gap: 16px;
 }
 
-.decision-list__header {
+/* Sidebar: Lead Programs grouped, each program is an expandable row
+   that reveals its three DMN tables (eligibility / recommendation /
+   unenrollment) as nested children. A delete affordance per program
+   removes all three DMNs from the cluster. */
+
+.program-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.program-list__header {
   padding: 14px 16px;
   border-bottom: 1px solid var(--border);
   display: flex;
@@ -422,28 +541,116 @@ body {
   font-weight: 600;
 }
 
-.decision-list__items {
+.program-list__items {
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
-.decision-list__item {
+.program-list__program {
   border-bottom: 1px solid var(--border);
 }
 
-.decision-list__item:last-child {
-  border-bottom: none;
+.program-list__program:last-child { border-bottom: none; }
+
+.program-list__program-row {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  background: transparent;
+  transition: background 0.15s;
 }
 
-.decision-list__row {
+.program-list__program-row:hover { background: #f9fafb; }
+
+.program-list__expander {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: transparent;
+  border: none;
+  padding: 12px 12px 12px 14px;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  min-width: 0;
+}
+
+.program-list__caret {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  font-size: 16px;
+  line-height: 1;
+  color: var(--accent);
+  transition: transform 0.15s;
+  flex-shrink: 0;
+}
+
+.program-list__caret--open {
+  transform: rotate(90deg);
+}
+
+.program-list__program-name {
+  font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.program-list__delete {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 14px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.program-list__delete-icon {
+  display: block;
+}
+
+.program-list__delete:hover:not(:disabled) {
+  background: #fee2e2;
+  color: var(--bad);
+}
+
+.program-list__delete:disabled {
+  color: #d1d5db;
+  cursor: not-allowed;
+}
+
+.program-list__children {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 6px 0;
+  background: #fafbfc;
+  border-top: 1px solid var(--border);
+}
+
+.program-list__child {
+  border-top: 1px solid var(--border);
+}
+
+.program-list__child:first-child { border-top: none; }
+
+.program-list__child-row {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
   width: 100%;
   background: transparent;
   border: none;
-  padding: 12px 16px;
+  padding: 8px 16px 8px 36px;
   cursor: pointer;
   text-align: left;
   font: inherit;
@@ -451,27 +658,37 @@ body {
   transition: background 0.15s;
 }
 
-.decision-list__row:hover {
-  background: #f9fafb;
+.program-list__child-row:hover:not(:disabled) {
+  background: #eff6ff;
 }
 
-.decision-list__item--selected .decision-list__row {
+.program-list__child--selected .program-list__child-row {
   background: #eef2ff;
+  border-left: 3px solid var(--accent);
+  padding-left: 33px;
 }
 
-.decision-list__name {
-  font-weight: 600;
-  font-size: 14px;
+.program-list__child-row:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
 }
 
-.decision-list__meta {
-  display: flex;
-  gap: 8px;
-  align-items: center;
+.program-list__child-label {
+  font-size: 13px;
+  font-weight: 500;
 }
 
-.decision-list__id {
+.program-list__child-id {
   font-family: ui-monospace, monospace;
+  font-size: 11px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.program-list__child--missing .program-list__child-label {
+  color: var(--muted);
 }
 
 .small { font-size: 11px; }
@@ -520,17 +737,59 @@ body {
   gap: 8px;
 }
 
-.editor__actions { display: flex; gap: 8px; }
+.editor__actions { display: flex; gap: 8px; align-items: center; }
+
+.editor__title {
+  text-align: right;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Prominent edit affordance in the Rule Manager when viewing a deployed
+   decision. Uses the primary-button styling plus a larger hit target so
+   business users see the path back to authoring. */
+.run-btn--edit {
+  font-size: 14px;
+  padding: 10px 18px;
+  letter-spacing: 0.01em;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+}
 
 .deploy-status {
-  padding: 8px 12px;
+  padding: 10px 14px;
   border-radius: 6px;
   font-size: 13px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  line-height: 1.45;
 }
 
 .deploy-status--ok {
   background: #d1fae5;
   color: #065f46;
+}
+
+.deploy-status--err {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.deploy-status__body {
+  flex: 1;
+}
+
+.deploy-status__dismiss {
+  color: inherit;
+  flex-shrink: 0;
+}
+
+.deploy-status__dismiss:hover {
+  background: rgba(0, 0, 0, 0.08);
 }
 
 .dmn-canvas {
@@ -682,23 +941,36 @@ body {
   gap: 2px;
 }
 
-.rule-card {
+/* Rule-row card: each card = one row of the decision table. The header
+   names the row and offers row removal. The body has two stacked
+   sections (IF / THEN) separated by a divider. Within IF, conditions
+   are listed with quiet "AND" labels between them — no toggle, since
+   same-row = AND is the only option. THEN holds per-output value
+   editors with type-aware controls. */
+.rule-row {
   border: 1px solid var(--border);
   border-radius: 8px;
   background: #fafbfc;
   overflow: hidden;
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.04);
 }
 
-.rule-card__header {
+.rule-row + .rule-row {
+  /* "OR" between rows — the gap is the only signal needed since
+     same-row = AND, different-row = OR is unambiguous. */
+  margin-top: 4px;
+}
+
+.rule-row__header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 12px;
+  padding: 8px 14px;
   background: #f3f4f6;
   border-bottom: 1px solid var(--border);
 }
 
-.rule-card__title {
+.rule-row__title {
   font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
@@ -706,13 +978,13 @@ body {
   color: var(--muted);
 }
 
-.rule-card__body {
+.rule-row__section {
   display: flex;
   gap: 12px;
-  padding: 12px;
+  padding: 14px;
 }
 
-.rule-card__keyword {
+.rule-row__keyword {
   flex: 0 0 56px;
   align-self: flex-start;
   text-align: center;
@@ -726,128 +998,88 @@ body {
   color: var(--primary);
 }
 
-.rule-card__keyword--then {
+.rule-row__keyword--then {
   color: var(--ok);
   border-color: #a7f3d0;
   background: #ecfdf5;
 }
 
-.rule-card__divider {
+.rule-row__divider {
   height: 1px;
   background: var(--border);
-  margin: 0 12px;
+  margin: 0 14px;
 }
 
-.rule-card__conditions,
-.rule-card__outputs {
+.rule-row__body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
   min-width: 0;
 }
 
-/* Outputs section above rules */
+.rule-row__and {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+  margin-left: 6px;
+  padding-left: 8px;
+  border-left: 2px solid var(--border);
+  align-self: flex-start;
+}
 
-.new-program__outputs-section {
+.rule-row__output {
+  display: grid;
+  grid-template-columns: minmax(180px, auto) 24px 1fr;
+  gap: 10px;
+  align-items: center;
+}
+
+.rule-row__output-name {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-}
-
-.output-def-row {
-  display: grid;
-  grid-template-columns: 1fr 0.6fr auto;
-  gap: 8px;
-  align-items: center;
-}
-
-.output-def-row__name,
-.output-def-row__type {
-  padding: 8px 10px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  font: inherit;
-  background: var(--surface);
-  min-width: 0;
-}
-
-.output-def-row__name:focus,
-.output-def-row__type:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
-}
-
-.output-def-row__name.invalid {
-  border-color: var(--bad);
-}
-
-.output-def-row__error {
-  grid-column: 1 / -1;
-  color: var(--bad);
-  margin-top: -4px;
-}
-
-/* THEN rows inside a rule */
-
-.output-row {
-  display: grid;
-  grid-template-columns: 1.4fr auto 1.6fr;
-  gap: 8px;
-  align-items: center;
-}
-
-.output-row__name {
-  padding: 6px 8px;
+  gap: 2px;
+  padding: 6px 10px;
   background: white;
   border: 1px solid var(--border);
   border-radius: 4px;
-  font-family: ui-monospace, SFMono-Regular, monospace;
-  font-size: 12px;
-  color: var(--text);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
-.output-row__eq {
+.rule-row__output-name code {
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 12px;
+}
+
+.rule-row__output-eq {
   color: var(--muted);
   text-align: center;
   font-weight: 600;
 }
 
-.output-row__val {
+.rule-row__output-input {
   padding: 8px 10px;
   border: 1px solid var(--border);
   border-radius: 6px;
   font: inherit;
   background: var(--surface);
-  min-width: 0;
+  width: 100%;
 }
 
-.output-row__val:focus {
+.rule-row__output-input:focus {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
 }
 
-.add-rule-btn {
-  align-self: flex-start;
-  background: transparent;
-  border: 1px dashed var(--accent);
-  color: var(--accent);
-  font: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  padding: 8px 14px;
-  border-radius: 6px;
-  transition: background 0.15s, color 0.15s;
+.rule-row--fallback {
+  border-style: dashed;
+  background: #fef9f0;
 }
 
-.add-rule-btn:hover {
-  background: #eff6ff;
+.rule-row--fallback .rule-row__header {
+  background: #fef3c7;
+  border-bottom-color: #fde68a;
 }
 
 .condition-row {
@@ -855,26 +1087,6 @@ body {
   grid-template-columns: 1.4fr 0.6fr 1fr auto;
   gap: 8px;
   align-items: center;
-}
-
-.condition-and {
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--muted);
-  letter-spacing: 0.08em;
-  padding-left: 6px;
-  position: relative;
-}
-
-.condition-and::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 50%;
-  width: 2px;
-  height: 100%;
-  background: var(--border);
-  transform: translateY(-50%);
 }
 
 .condition-row select,
@@ -894,11 +1106,83 @@ body {
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
 }
 
+/* Prominent "Add Condition" button — primary affordance within a row. */
+.add-condition-btn {
+  align-self: flex-start;
+  background: var(--primary);
+  color: white;
+  border: none;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08);
+}
+
+.add-condition-btn:hover:not(:disabled) {
+  background: var(--primary-hover);
+}
+
+.add-condition-btn:disabled {
+  background: var(--muted);
+  cursor: not-allowed;
+}
+
+/* "Add Row" — visually distinct from "Add Condition" so the two
+   actions can't be confused. Dashed full-width banner that sits between
+   rule-row cards and the fallback card, reading as a row boundary. */
+.add-row-btn {
+  align-self: stretch;
+  background: transparent;
+  border: 2px dashed var(--accent);
+  color: var(--accent);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  padding: 12px 16px;
+  border-radius: 8px;
+  transition: background 0.15s;
+  margin: 4px 0;
+}
+
+.add-row-btn:hover:not(:disabled) {
+  background: #eff6ff;
+}
+
+.add-row-btn:disabled {
+  border-color: var(--muted);
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
 .new-program__actions {
   display: flex;
   justify-content: flex-end;
   border-top: 1px solid var(--border);
   padding-top: 16px;
+}
+
+.rule-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+}
+
+.rule-edit__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
 }
 
 /* Polish ---------------------------------------------------------------- */
