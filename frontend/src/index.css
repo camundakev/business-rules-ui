@@ -213,10 +213,19 @@ body {
   color: inherit;
 }
 
-.agent-card__delete {
+/* Action chips (edit / delete) in the top-right of a custom agent
+   card. The wrapper positions absolutely so the buttons float over
+   the card without altering its layout. */
+.agent-card__actions {
   position: absolute;
   top: 6px;
   right: 6px;
+  display: flex;
+  gap: 4px;
+  z-index: 1;
+}
+
+.agent-card__action {
   background: transparent;
   border: none;
   color: var(--muted);
@@ -229,7 +238,12 @@ body {
   transition: background 0.15s, color 0.15s;
 }
 
-.agent-card__delete:hover {
+.agent-card__action--edit:hover {
+  background: #eff6ff;
+  color: var(--accent);
+}
+
+.agent-card__action--delete:hover {
   background: #fee2e2;
   color: var(--bad);
 }

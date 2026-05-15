@@ -129,7 +129,8 @@ function AgentSimulator({ programs, onProgramUnregistered }) {
   const [result, setResult] = useState(null);
   const [audit, setAudit] = useState(null);
   const [error, setError] = useState(null);
-  const [agentsMode, setAgentsMode] = useState('list'); // 'list' | 'new'
+  const [agentsMode, setAgentsMode] = useState('list'); // 'list' | 'new' | 'edit'
+  const [editingAgent, setEditingAgent] = useState(null);
 
   const allAgents = [...AGENTS, ...customAgents];
 
@@ -144,6 +145,12 @@ function AgentSimulator({ programs, onProgramUnregistered }) {
     setCustomAgents((current) => upsertCustomAgent(current, agent));
     setSelectedAgent(agent);
     setAgentsMode('list');
+    setEditingAgent(null);
+  }
+
+  function handleEditAgent(agent) {
+    setEditingAgent(agent);
+    setAgentsMode('edit');
   }
 
   function handleDeleteAgent(agentCode) {
@@ -250,13 +257,29 @@ function AgentSimulator({ programs, onProgramUnregistered }) {
             </button>
           )}
         </div>
-        {agentsMode === 'new' ? (
+        {agentsMode === 'new' && (
           <NewAgentForm
             existingCodes={allAgents.map((a) => a.agentCode)}
             onSave={handleAgentCreated}
             onCancel={() => setAgentsMode('list')}
           />
-        ) : (
+        )}
+        {agentsMode === 'edit' && editingAgent && (
+          <NewAgentForm
+            // Exclude the editing agent's own code so the conflict
+            // check doesn't fire against its current value.
+            existingCodes={allAgents
+              .filter((a) => a.agentCode !== editingAgent.agentCode)
+              .map((a) => a.agentCode)}
+            initialAgent={editingAgent}
+            onSave={handleAgentCreated}
+            onCancel={() => {
+              setEditingAgent(null);
+              setAgentsMode('list');
+            }}
+          />
+        )}
+        {agentsMode === 'list' && (
           <div className="agent-grid">
             {allAgents.map((agent) => {
               const isCustom = !AGENTS.some((a) => a.agentCode === agent.agentCode);
@@ -266,6 +289,7 @@ function AgentSimulator({ programs, onProgramUnregistered }) {
                   agent={agent}
                   selected={selectedAgent?.agentCode === agent.agentCode}
                   onSelect={setSelectedAgent}
+                  onEdit={isCustom ? () => handleEditAgent(agent) : null}
                   onDelete={isCustom ? () => handleDeleteAgent(agent.agentCode) : null}
                 />
               );

@@ -83,8 +83,34 @@ function AttributeField({ attr, value, onChange, disabled }) {
   );
 }
 
-export function NewAgentForm({ existingCodes, onSave, onCancel }) {
-  const [draft, setDraft] = useState(defaultAgentDraft);
+// Initialize a draft from an existing agent record. Numeric fields are
+// stored as strings in the form state (the inputs are text-based) and
+// coerceForRuntime turns them back into numbers on save.
+function draftFromAgent(agent) {
+  const draft = {
+    agentCode: String(agent.agentCode ?? ''),
+    agentName: String(agent.agentName ?? ''),
+    agentEmail: String(agent.agentEmail ?? ''),
+  };
+  for (const attr of ATTRIBUTE_SCHEMA) {
+    const raw = agent[attr.name];
+    if (raw === null || raw === undefined) {
+      draft[attr.name] = initialFieldValue(attr);
+    } else {
+      draft[attr.name] = String(raw);
+    }
+  }
+  return draft;
+}
+
+// `initialAgent` puts the form in edit mode: pre-populates every field
+// from the agent, freezes agentCode (the registry key — changing it
+// would orphan the original record), and swaps the header / CTA copy.
+export function NewAgentForm({ existingCodes, onSave, onCancel, initialAgent = null }) {
+  const editing = initialAgent !== null;
+  const [draft, setDraft] = useState(() =>
+    initialAgent ? draftFromAgent(initialAgent) : defaultAgentDraft(),
+  );
 
   function update(field, value) {
     setDraft((d) => ({ ...d, [field]: value }));
@@ -93,8 +119,12 @@ export function NewAgentForm({ existingCodes, onSave, onCancel }) {
   const trimmedCode = draft.agentCode.trim();
   const trimmedName = draft.agentName.trim();
   const trimmedEmail = draft.agentEmail.trim();
+  // In edit mode the agentCode is locked, so the only conflict source
+  // is the new-agent flow. Either way, an agent's own code shouldn't
+  // count as a conflict against itself — callers exclude it from
+  // existingCodes when constructing the form.
   const codeConflict =
-    trimmedCode.length > 0 && existingCodes.includes(trimmedCode);
+    !editing && trimmedCode.length > 0 && existingCodes.includes(trimmedCode);
   const emailInvalid =
     trimmedEmail.length > 0 && !EMAIL_RE.test(trimmedEmail);
   const numericValid = ATTRIBUTE_SCHEMA.every((attr) => {
@@ -118,7 +148,7 @@ export function NewAgentForm({ existingCodes, onSave, onCancel }) {
   return (
     <div className="new-agent">
       <div className="new-agent__header">
-        <h3>New Sample Agent</h3>
+        <h3>{editing ? `Edit ${initialAgent.agentName || 'Sample Agent'}` : 'New Sample Agent'}</h3>
         <button type="button" className="link-btn" onClick={onCancel}>
           Cancel
         </button>
@@ -128,14 +158,20 @@ export function NewAgentForm({ existingCodes, onSave, onCancel }) {
         <span className="new-program__label">Identity</span>
         <div className="new-agent__grid">
           <label className="new-agent__field">
-            <span className="new-agent__field-label">Agent code</span>
+            <span className="new-agent__field-label">
+              Agent code
+              {editing && <span className="muted small"> · locked</span>}
+            </span>
             <input
               className={`new-agent__input ${codeConflict ? 'invalid' : ''}`}
               type="text"
               value={draft.agentCode}
               onChange={(e) => update('agentCode', e.target.value)}
               placeholder="e.g. 1006"
-              autoFocus
+              autoFocus={!editing}
+              readOnly={editing}
+              disabled={editing}
+              title={editing ? 'Agent code is the registry key and can’t be changed.' : undefined}
             />
             {codeConflict && (
               <span className="new-agent__field-error small">
@@ -198,7 +234,7 @@ export function NewAgentForm({ existingCodes, onSave, onCancel }) {
           onClick={handleSave}
           disabled={!canSave}
         >
-          Save Agent
+          {editing ? 'Save Changes' : 'Save Agent'}
         </button>
       </div>
     </div>
