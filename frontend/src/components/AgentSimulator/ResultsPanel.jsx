@@ -33,7 +33,24 @@ function formatVal(v) {
   return String(v);
 }
 
-export function ResultsPanel({ result, decisionAudit, error, running }) {
+import { findProgramByDecisionId } from '../../utils/programRegistry.js';
+
+const ROLE_LABEL = {
+  eligibility: 'Eligibility',
+  recommendation: 'Recommendations',
+  unenrollment: 'Unenrollment',
+};
+
+function describeDecision(decisionId, programs) {
+  const hit = findProgramByDecisionId(programs ?? [], decisionId);
+  if (!hit) return { label: decisionId, sub: null };
+  return {
+    label: `${hit.program.displayName} · ${ROLE_LABEL[hit.role] ?? hit.role}`,
+    sub: null,
+  };
+}
+
+export function ResultsPanel({ result, decisionAudit, error, running, programs }) {
   if (running) {
     return (
       <section className="results">
@@ -153,14 +170,17 @@ export function ResultsPanel({ result, decisionAudit, error, running }) {
               </tr>
             </thead>
             <tbody>
-              {decisionAudit.map((d) => (
-                <tr key={d.decisionEvaluationInstanceKey}>
-                  <td>{d.decisionDefinitionName || d.decisionDefinitionId}</td>
-                  <td><span className="badge badge--info small">v{d.decisionDefinitionVersion}</span></td>
-                  <td className="muted small">{new Date(d.evaluationDate).toLocaleTimeString()}</td>
-                  <td><AuditResult raw={d.result} /></td>
-                </tr>
-              ))}
+              {decisionAudit.map((d) => {
+                const { label } = describeDecision(d.decisionDefinitionId, programs);
+                return (
+                  <tr key={d.decisionEvaluationInstanceKey}>
+                    <td>{label}</td>
+                    <td><span className="badge badge--info small">v{d.decisionDefinitionVersion}</span></td>
+                    <td className="muted small">{new Date(d.evaluationDate).toLocaleTimeString()}</td>
+                    <td><AuditResult raw={d.result} /></td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

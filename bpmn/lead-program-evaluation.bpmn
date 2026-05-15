@@ -20,7 +20,7 @@
 
     <bpmn:businessRuleTask id="Task_EvaluateEligibility" name="Evaluate Eligibility">
       <bpmn:extensionElements>
-        <zeebe:calledDecision decisionId="eligibility-rules" resultVariable="eligibilityResult"/>
+        <zeebe:calledDecision decisionId="=eligibilityDecisionId" resultVariable="eligibilityResult"/>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_Start_Eligibility</bpmn:incoming>
       <bpmn:outgoing>Flow_Eligibility_Gateway</bpmn:outgoing>
@@ -34,7 +34,7 @@
 
     <bpmn:businessRuleTask id="Task_GenerateRecommendation" name="Generate Recommendation">
       <bpmn:extensionElements>
-        <zeebe:calledDecision decisionId="recommendation-rules" resultVariable="recommendations"/>
+        <zeebe:calledDecision decisionId="=recommendationDecisionId" resultVariable="recommendations"/>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_Eligible_Yes</bpmn:incoming>
       <bpmn:outgoing>Flow_Recommendation_End</bpmn:outgoing>
@@ -46,7 +46,7 @@
 
     <bpmn:businessRuleTask id="Task_EvaluateUnenrollment" name="Evaluate Unenrollment">
       <bpmn:extensionElements>
-        <zeebe:calledDecision decisionId="unenrollment-rules" resultVariable="unenrollmentResult"/>
+        <zeebe:calledDecision decisionId="=unenrollmentDecisionId" resultVariable="unenrollmentResult"/>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_Eligible_No</bpmn:incoming>
       <bpmn:outgoing>Flow_Unenrollment_Gateway</bpmn:outgoing>
