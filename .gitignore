@@ -21,3 +21,6 @@ frontend/.vite/
 .vscode/
 .idea/
 *.log
+
+# Claude Project Files
+CLAUDE.md
