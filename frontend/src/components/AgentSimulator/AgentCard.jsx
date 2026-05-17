@@ -24,7 +24,26 @@ function TrashIcon() {
   );
 }
 
-export function AgentCard({ agent, selected, onSelect, onDelete }) {
+function PencilIcon() {
+  return (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M12 20h9" />
+      <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z" />
+    </svg>
+  );
+}
+
+export function AgentCard({ agent, selected, onSelect, onDelete, onEdit }) {
   function handleDelete(e) {
     e.stopPropagation();
     if (!onDelete) return;
@@ -32,6 +51,12 @@ export function AgentCard({ agent, selected, onSelect, onDelete }) {
       `Remove sample agent "${agent.agentName}" (#${agent.agentCode})?`,
     );
     if (ok) onDelete();
+  }
+
+  function handleEdit(e) {
+    e.stopPropagation();
+    if (!onEdit) return;
+    onEdit();
   }
 
   return (
@@ -61,16 +86,31 @@ export function AgentCard({ agent, selected, onSelect, onDelete }) {
           )}
         </dl>
       </button>
-      {onDelete && (
-        <button
-          type="button"
-          className="agent-card__delete"
-          onClick={handleDelete}
-          aria-label={`Delete ${agent.agentName}`}
-          title="Remove this agent"
-        >
-          <TrashIcon />
-        </button>
+      {(onEdit || onDelete) && (
+        <div className="agent-card__actions">
+          {onEdit && (
+            <button
+              type="button"
+              className="agent-card__action agent-card__action--edit"
+              onClick={handleEdit}
+              aria-label={`Edit ${agent.agentName}`}
+              title="Edit this agent"
+            >
+              <PencilIcon />
+            </button>
+          )}
+          {onDelete && (
+            <button
+              type="button"
+              className="agent-card__action agent-card__action--delete"
+              onClick={handleDelete}
+              aria-label={`Delete ${agent.agentName}`}
+              title="Remove this agent"
+            >
+              <TrashIcon />
+            </button>
+          )}
+        </div>
       )}
     </div>
   );

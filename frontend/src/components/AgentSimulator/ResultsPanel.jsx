@@ -85,10 +85,27 @@ export function ResultsPanel({ result, decisionAudit, error, running, programs }
   }
 
   const { variables = {} } = result;
-  const { eligibilityResult, recommendations, unenrollmentResult, agentStatus, unenrolledAt } = variables;
+  const {
+    eligibilityResult,
+    recommendations,
+    unenrollmentResult,
+    agentStatus,
+    unenrolledAt,
+    trainingEmailSentAt,
+  } = variables;
 
   const isEligible = eligibilityResult?.isEligible === true;
   const recArray = Array.isArray(recommendations) ? recommendations : (recommendations ? [recommendations] : []);
+
+  // The training-email flow surfaces as a recommendation whose
+  // recommendationType is "training". When present, render an extra
+  // status card below the recommendations so the user sees that an
+  // email was sent and the process is now parked on its timer.
+  const trainingRec = recArray.find((r) => r?.recommendationType === 'training');
+  // BPMN may set its own trainingEmailSentAt variable; fall back to
+  // the moment we observed the result so the card always shows a
+  // sensible timestamp.
+  const trainingSentAt = trainingEmailSentAt ?? result?.observedAt ?? null;
 
   return (
     <section className="results">
@@ -131,6 +148,20 @@ export function ResultsPanel({ result, decisionAudit, error, running, programs }
                 </li>
               ))}
             </ul>
+          </div>
+        )}
+
+        {trainingRec && (
+          <div className="result-card result-card--training">
+            <div className="result-card__title">Training Email Sent</div>
+            <span className="badge badge--info">Awaiting training completion</span>
+            <p className="result-card__reason">
+              Sent
+              {trainingSentAt ? (
+                <> at <time>{new Date(trainingSentAt).toLocaleString()}</time></>
+              ) : null}
+              . Training deadline: <strong>30 days</strong>.
+            </p>
           </div>
         )}
 
