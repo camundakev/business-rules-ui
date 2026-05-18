@@ -21,6 +21,7 @@ export default defineConfig(({ mode }) => {
       }),
     ],
     server: {
+      allowedHosts: 'all',
       port: 5173,
     },
   };
