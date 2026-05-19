@@ -22,7 +22,8 @@ export default defineConfig(({ mode }) => {
     ],
     server: {
       allowedHosts: 'all',
-      port: 5173,
+      port: parseInt(process.env.PORT) || 5173,
+      host: '0.0.0.0',
     },
   };
 });
