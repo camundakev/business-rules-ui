@@ -1,4 +1,4 @@
-// NYL Lead Programs Management — Job Workers
+// Lead Programs Management — Job Workers
 //
 // Run from this folder: `npm start` (loads ../.env via Node's --env-file flag).
 
@@ -31,4 +31,4 @@ zeebe.createWorker({
   },
 });
 
-console.log('NYL workers ready: auto-unenroll-agent, hold-agent-status');
+console.log('Workers ready: auto-unenroll-agent, hold-agent-status');

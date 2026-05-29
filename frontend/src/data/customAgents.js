@@ -3,7 +3,7 @@
 // agents.js — clicking a card selects either source. Custom agents
 // can be deleted from their card; hardcoded ones cannot.
 
-const STORAGE_KEY = 'nyl-rules-poc:custom-agents';
+const STORAGE_KEY = 'rules-poc:custom-scenarios';
 
 export function loadCustomAgents() {
   try {

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# NYL PoC — start/stop the workers + Vite dev server reliably.
+# Lead Programs PoC — start/stop the workers + Vite dev server reliably.
 #
 # Usage:
 #   ./dev.sh up       Start both in background (logs in .dev/)
@@ -65,7 +65,7 @@ stop_one() {
 }
 
 cmd_up() {
-  echo "▶ Starting NYL services"
+  echo "▶ Starting services"
   start_one "workers"  "$ROOT/workers"  "npm start"   "$WORKERS_PID"  "$WORKERS_LOG"
   start_one "frontend" "$ROOT/frontend" "npm run dev" "$FRONTEND_PID" "$FRONTEND_LOG"
   echo ""
@@ -75,7 +75,7 @@ cmd_up() {
 }
 
 cmd_down() {
-  echo "▶ Stopping NYL services"
+  echo "▶ Stopping services"
   stop_one "frontend" "$FRONTEND_PID"
   stop_one "workers"  "$WORKERS_PID"
   # Belt-and-suspenders: anything still bound to Vite's port?

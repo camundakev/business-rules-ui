@@ -5,10 +5,10 @@ import {
   upsertCustomAgent,
   removeCustomAgent,
 } from './data/customAgents.js';
-import { AgentCard } from './components/AgentSimulator/AgentCard.jsx';
-import { NewAgentForm } from './components/AgentSimulator/NewAgentForm.jsx';
-import { ProgramSelector } from './components/AgentSimulator/ProgramSelector.jsx';
-import { ResultsPanel } from './components/AgentSimulator/ResultsPanel.jsx';
+import { ScenarioCard } from './components/ScenarioSimulator/ScenarioCard.jsx';
+import { NewScenarioForm } from './components/ScenarioSimulator/NewScenarioForm.jsx';
+import { ProgramSelector } from './components/ScenarioSimulator/ProgramSelector.jsx';
+import { ResultsPanel } from './components/ScenarioSimulator/ResultsPanel.jsx';
 import { ProgramList } from './components/RuleManager/ProgramList.jsx';
 import { DecisionTableEditor } from './components/RuleManager/DecisionTableEditor.jsx';
 import { VersionHistory } from './components/RuleManager/VersionHistory.jsx';
@@ -33,7 +33,7 @@ import {
 } from './utils/programRegistry.js';
 
 const TABS = [
-  { id: 'simulator', label: 'Agent Simulator' },
+  { id: 'simulator', label: 'Scenario Simulator' },
   { id: 'rules', label: 'Rule Manager' },
 ];
 
@@ -121,7 +121,7 @@ async function pollProcessInstance(processInstanceKey) {
   return { kind: 'timeout', variables };
 }
 
-function AgentSimulator({ programs, onProgramUnregistered }) {
+function ScenarioSimulator({ programs, onProgramUnregistered }) {
   const [customAgents, setCustomAgents] = useState(() => loadCustomAgents());
   const [selectedAgent, setSelectedAgent] = useState(AGENTS[0]);
   const [program, setProgram] = useState(DEFAULT_PROGRAM);
@@ -241,32 +241,32 @@ function AgentSimulator({ programs, onProgramUnregistered }) {
   return (
     <div className="simulator">
       <div className="hint">
-        Run a sample agent through the live <code>lead-program-evaluation</code> process on Camunda SaaS.
+        Run a scenario through the live <code>lead-program-evaluation</code> process on Camunda SaaS.
         Each run starts a real process instance and surfaces the decision-table outputs and final agent status.
       </div>
       <section className="panel">
         <div className="panel__header">
-          <h2>Select an Agent</h2>
+          <h2>Select a Scenario</h2>
           {agentsMode === 'list' && (
             <button
               type="button"
               className="run-btn"
               onClick={() => setAgentsMode('new')}
             >
-              + New Agent
+              + New Scenario
             </button>
           )}
         </div>
         {agentsMode === 'new' && (
-          <NewAgentForm
+          <NewScenarioForm
             existingCodes={allAgents.map((a) => a.agentCode)}
             onSave={handleAgentCreated}
             onCancel={() => setAgentsMode('list')}
           />
         )}
         {agentsMode === 'edit' && editingAgent && (
-          <NewAgentForm
-            // Exclude the editing agent's own code so the conflict
+          <NewScenarioForm
+            // Exclude the editing scenario's own code so the conflict
             // check doesn't fire against its current value.
             existingCodes={allAgents
               .filter((a) => a.agentCode !== editingAgent.agentCode)
@@ -280,11 +280,11 @@ function AgentSimulator({ programs, onProgramUnregistered }) {
           />
         )}
         {agentsMode === 'list' && (
-          <div className="agent-grid">
+          <div className="scenario-grid">
             {allAgents.map((agent) => {
               const isCustom = !AGENTS.some((a) => a.agentCode === agent.agentCode);
               return (
-                <AgentCard
+                <ScenarioCard
                   key={agent.agentCode}
                   agent={agent}
                   selected={selectedAgent?.agentCode === agent.agentCode}
@@ -636,7 +636,7 @@ function RuleManager({ programs, onProgramRegistered, onProgramUnregistered, onA
 // Persisted to localStorage so reloads don't bring the program back
 // during the window where Camunda's index is still catching up. The
 // store is small (just display names) and per-origin.
-const TOMBSTONE_KEY = 'nyl-rules-poc:program-tombstones';
+const TOMBSTONE_KEY = 'rules-poc:program-tombstones';
 
 function loadTombstones() {
   try {
@@ -699,7 +699,7 @@ function App() {
   return (
     <div className="app">
       <header className="app__header">
-        <h1>NYL Lead Programs Management</h1>
+        <h1>Rules-Driven Program Management</h1>
         <p className="app__subtitle">Camunda 8 PoC · Rules orchestration without IT</p>
       </header>
 
@@ -718,7 +718,7 @@ function App() {
 
       <main className="app__main">
         {tab === 'simulator' && (
-          <AgentSimulator
+          <ScenarioSimulator
             programs={programs}
             onProgramUnregistered={unregisterProgram}
           />

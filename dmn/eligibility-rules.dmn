@@ -6,7 +6,7 @@
              xmlns:modeler="http://camunda.org/schema/modeler/1.0"
              id="Definitions_EligibilityRules"
              name="Eligibility Rules"
-             namespace="http://camunda.org/schema/dmn/nyl/eligibility"
+             namespace="http://camunda.org/schema/dmn/lead-program/eligibility"
              exporter="Claude Code"
              exporterVersion="1.0"
              modeler:executionPlatform="Camunda Cloud"

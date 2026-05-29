@@ -1,4 +1,4 @@
-// Mock agents for the Agent Simulator tab. Each profile is hand-crafted so
+// Mock scenarios for the Scenario Simulator tab. Each profile is hand-crafted so
 // that, against the seeded DMN rules, the process produces the outcome the
 // demo script expects.
 //
@@ -26,7 +26,7 @@ export const AGENTS = [
     licenseType: 'Life + Health',
     attemptRate: 0.72,
     monthsBehindProactive: '',
-    nylicuTraining: '',
+    certificationTraining: '',
     agentEmail: 'kevin.coronato@camunda.com',
   },
   {
@@ -41,7 +41,7 @@ export const AGENTS = [
     licenseType: 'Life + Health',
     attemptRate: 0.41,
     monthsBehindProactive: '2 Months behind',
-    nylicuTraining: '',
+    certificationTraining: '',
     agentEmail: 'kevin.coronato@camunda.com',
   },
   {
@@ -56,7 +56,7 @@ export const AGENTS = [
     licenseType: 'Life + Health',
     attemptRate: 0.31,
     monthsBehindProactive: '4+ Months behind',
-    nylicuTraining: '',
+    certificationTraining: '',
     agentEmail: 'kevin.coronato@camunda.com',
   },
   {
@@ -71,7 +71,7 @@ export const AGENTS = [
     licenseType: 'Life + Health',
     attemptRate: 0.88,
     monthsBehindProactive: '',
-    nylicuTraining: '',
+    certificationTraining: '',
     agentEmail: 'kevin.coronato@camunda.com',
   },
   {
@@ -86,7 +86,7 @@ export const AGENTS = [
     licenseType: 'Life',
     attemptRate: 0.65,
     monthsBehindProactive: '',
-    nylicuTraining: '',
+    certificationTraining: '',
     agentEmail: 'kevin.coronato@camunda.com',
   },
 ];

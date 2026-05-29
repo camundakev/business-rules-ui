@@ -1,7 +1,7 @@
-// Selectable agent card. The whole card is the select button; an
+// Selectable scenario card. The whole card is the select button; an
 // optional trash affordance in the header (rendered only when
-// `onDelete` is provided) removes user-created agents — hardcoded
-// demo agents don't pass `onDelete`.
+// `onDelete` is provided) removes user-created scenarios — hardcoded
+// demo scenarios don't pass `onDelete`.
 function TrashIcon() {
   return (
     <svg
@@ -43,12 +43,12 @@ function PencilIcon() {
   );
 }
 
-export function AgentCard({ agent, selected, onSelect, onDelete, onEdit }) {
+export function ScenarioCard({ agent, selected, onSelect, onDelete, onEdit }) {
   function handleDelete(e) {
     e.stopPropagation();
     if (!onDelete) return;
     const ok = window.confirm(
-      `Remove sample agent "${agent.agentName}" (#${agent.agentCode})?`,
+      `Remove scenario "${agent.agentName}" (#${agent.agentCode})?`,
     );
     if (ok) onDelete();
   }
@@ -60,21 +60,21 @@ export function AgentCard({ agent, selected, onSelect, onDelete, onEdit }) {
   }
 
   return (
-    <div className={`agent-card ${selected ? 'agent-card--selected' : ''}`}>
+    <div className={`scenario-card ${selected ? 'scenario-card--selected' : ''}`}>
       <button
         type="button"
-        className="agent-card__select"
+        className="scenario-card__select"
         onClick={() => onSelect(agent)}
         aria-pressed={selected}
       >
-        <div className="agent-card__header">
-          <span className="agent-card__code">#{agent.agentCode}</span>
-          <span className={`agent-card__status agent-card__status--${agent.agentStatus.replace(/\s/g, '-').toLowerCase()}`}>
+        <div className="scenario-card__header">
+          <span className="scenario-card__code">#{agent.agentCode}</span>
+          <span className={`scenario-card__status scenario-card__status--${agent.agentStatus.replace(/\s/g, '-').toLowerCase()}`}>
             {agent.agentStatus}
           </span>
         </div>
-        <div className="agent-card__name">{agent.agentName}</div>
-        <dl className="agent-card__attrs">
+        <div className="scenario-card__name">{agent.agentName}</div>
+        <dl className="scenario-card__attrs">
           <div><dt>Tenure</dt><dd>{agent.agentTenure}</dd></div>
           <div><dt>Compliance</dt><dd>{agent.complianceRating}</dd></div>
           <div><dt>Proactive</dt><dd>{agent.agentProactiveStatus}</dd></div>
@@ -87,14 +87,14 @@ export function AgentCard({ agent, selected, onSelect, onDelete, onEdit }) {
         </dl>
       </button>
       {(onEdit || onDelete) && (
-        <div className="agent-card__actions">
+        <div className="scenario-card__actions">
           {onEdit && (
             <button
               type="button"
-              className="agent-card__action agent-card__action--edit"
+              className="scenario-card__action scenario-card__action--edit"
               onClick={handleEdit}
               aria-label={`Edit ${agent.agentName}`}
-              title="Edit this agent"
+              title="Edit this scenario"
             >
               <PencilIcon />
             </button>
@@ -102,10 +102,10 @@ export function AgentCard({ agent, selected, onSelect, onDelete, onEdit }) {
           {onDelete && (
             <button
               type="button"
-              className="agent-card__action agent-card__action--delete"
+              className="scenario-card__action scenario-card__action--delete"
               onClick={handleDelete}
               aria-label={`Delete ${agent.agentName}`}
-              title="Remove this agent"
+              title="Remove this scenario"
             >
               <TrashIcon />
             </button>

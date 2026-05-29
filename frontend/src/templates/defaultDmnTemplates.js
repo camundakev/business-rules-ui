@@ -23,7 +23,7 @@ export const RECOMMENDATION_TEMPLATE = `<?xml version="1.0" encoding="UTF-8"?>
              id="__DEFINITIONS_ID__"
              name="__DRG_NAME__"
              namespace="__NAMESPACE__"
-             exporter="NYL Lead Program Builder"
+             exporter="Lead Program Builder"
              exporterVersion="1.0"
              modeler:executionPlatform="Camunda Cloud"
              modeler:executionPlatformVersion="8.9.0">
@@ -43,9 +43,9 @@ export const RECOMMENDATION_TEMPLATE = `<?xml version="1.0" encoding="UTF-8"?>
         </inputExpression>
       </input>
 
-      <input id="Input_NylicuTraining" label="NYLIC Training">
-        <inputExpression id="InputExpression_NylicuTraining" typeRef="string">
-          <text>nylicuTraining</text>
+      <input id="Input_CertificationTraining" label="Certification Training">
+        <inputExpression id="InputExpression_CertificationTraining" typeRef="string">
+          <text>certificationTraining</text>
         </inputExpression>
       </input>
 
@@ -74,13 +74,13 @@ export const RECOMMENDATION_TEMPLATE = `<?xml version="1.0" encoding="UTF-8"?>
       </rule>
 
       <rule id="Rule_R3_Training">
-        <description>NYLIC University training off-track: prompt completion to maintain eligibility.</description>
+        <description>Certification training off-track: prompt completion to maintain eligibility.</description>
         <inputEntry id="InputEntry_R3_Council"><text></text></inputEntry>
         <inputEntry id="InputEntry_R3_AttemptRate"><text></text></inputEntry>
         <inputEntry id="InputEntry_R3_Training"><text>"Not On Track"</text></inputEntry>
         <outputEntry id="OutputEntry_R3_Type"><text>"training"</text></outputEntry>
-        <outputEntry id="OutputEntry_R3_Text"><text>"Complete NYLIC University training to maintain program eligibility"</text></outputEntry>
-        <outputEntry id="OutputEntry_R3_Link"><text>"/training/nylic-university"</text></outputEntry>
+        <outputEntry id="OutputEntry_R3_Text"><text>"Complete certification training to maintain program eligibility"</text></outputEntry>
+        <outputEntry id="OutputEntry_R3_Link"><text>"/training/certification"</text></outputEntry>
       </rule>
 
     </decisionTable>
@@ -105,7 +105,7 @@ export const UNENROLLMENT_TEMPLATE = `<?xml version="1.0" encoding="UTF-8"?>
              id="__DEFINITIONS_ID__"
              name="__DRG_NAME__"
              namespace="__NAMESPACE__"
-             exporter="NYL Lead Program Builder"
+             exporter="Lead Program Builder"
              exporterVersion="1.0"
              modeler:executionPlatform="Camunda Cloud"
              modeler:executionPlatformVersion="8.9.0">
@@ -227,7 +227,7 @@ export function renderTemplate(template, { decisionId, decisionName, drgName }) 
     .replaceAll('__DECISION_NAME__', escapeXml(decisionName))
     .replaceAll('__DRG_NAME__', escapeXml(drgName))
     .replaceAll('__DEFINITIONS_ID__', safeId('Definitions', decisionId))
-    .replaceAll('__NAMESPACE__', `http://camunda.org/schema/dmn/nyl/lead-program/${decisionId}`)
+    .replaceAll('__NAMESPACE__', `http://camunda.org/schema/dmn/lead-program/${decisionId}`)
     .replaceAll('__DIAGRAM_ID__', safeId('Diagram', decisionId))
     .replaceAll('__SHAPE_ID__', safeId('Shape', decisionId));
 }

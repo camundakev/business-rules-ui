@@ -1,8 +1,8 @@
-// Inline form for authoring a new sample agent. Identity fields
+// Inline form for authoring a new test scenario. Identity fields
 // (agentCode, agentName) are free text; everything else is rendered
 // from the canonical ATTRIBUTE_SCHEMA so dropdowns and numeric inputs
 // match exactly what the condition builder uses elsewhere. Saved
-// agents are persisted to localStorage by the caller.
+// scenarios are persisted to localStorage by the caller.
 import { useState } from 'react';
 import { ATTRIBUTE_SCHEMA } from '../../utils/attributeSchema.js';
 
@@ -58,7 +58,7 @@ function AttributeField({ attr, value, onChange, disabled }) {
   if (attr.inputControl === 'dropdown') {
     return (
       <select
-        className="new-agent__input"
+        className="new-scenario__input"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}
@@ -71,7 +71,7 @@ function AttributeField({ attr, value, onChange, disabled }) {
   }
   return (
     <input
-      className="new-agent__input"
+      className="new-scenario__input"
       type="number"
       step={attr.step ?? 'any'}
       min={attr.min}
@@ -106,7 +106,7 @@ function draftFromAgent(agent) {
 // `initialAgent` puts the form in edit mode: pre-populates every field
 // from the agent, freezes agentCode (the registry key — changing it
 // would orphan the original record), and swaps the header / CTA copy.
-export function NewAgentForm({ existingCodes, onSave, onCancel, initialAgent = null }) {
+export function NewScenarioForm({ existingCodes, onSave, onCancel, initialAgent = null }) {
   const editing = initialAgent !== null;
   const [draft, setDraft] = useState(() =>
     initialAgent ? draftFromAgent(initialAgent) : defaultAgentDraft(),
@@ -120,7 +120,7 @@ export function NewAgentForm({ existingCodes, onSave, onCancel, initialAgent = n
   const trimmedName = draft.agentName.trim();
   const trimmedEmail = draft.agentEmail.trim();
   // In edit mode the agentCode is locked, so the only conflict source
-  // is the new-agent flow. Either way, an agent's own code shouldn't
+  // is the new-scenario flow. Either way, an agent's own code shouldn't
   // count as a conflict against itself — callers exclude it from
   // existingCodes when constructing the form.
   const codeConflict =
@@ -146,24 +146,24 @@ export function NewAgentForm({ existingCodes, onSave, onCancel, initialAgent = n
   }
 
   return (
-    <div className="new-agent">
-      <div className="new-agent__header">
-        <h3>{editing ? `Edit ${initialAgent.agentName || 'Sample Agent'}` : 'New Sample Agent'}</h3>
+    <div className="new-scenario">
+      <div className="new-scenario__header">
+        <h3>{editing ? `Edit ${initialAgent.agentName || 'Scenario'}` : 'New Scenario'}</h3>
         <button type="button" className="link-btn" onClick={onCancel}>
           Cancel
         </button>
       </div>
 
-      <div className="new-agent__section">
+      <div className="new-scenario__section">
         <span className="new-program__label">Identity</span>
-        <div className="new-agent__grid">
-          <label className="new-agent__field">
-            <span className="new-agent__field-label">
+        <div className="new-scenario__grid">
+          <label className="new-scenario__field">
+            <span className="new-scenario__field-label">
               Agent code
               {editing && <span className="muted small"> · locked</span>}
             </span>
             <input
-              className={`new-agent__input ${codeConflict ? 'invalid' : ''}`}
+              className={`new-scenario__input ${codeConflict ? 'invalid' : ''}`}
               type="text"
               value={draft.agentCode}
               onChange={(e) => update('agentCode', e.target.value)}
@@ -174,25 +174,25 @@ export function NewAgentForm({ existingCodes, onSave, onCancel, initialAgent = n
               title={editing ? 'Agent code is the registry key and can’t be changed.' : undefined}
             />
             {codeConflict && (
-              <span className="new-agent__field-error small">
+              <span className="new-scenario__field-error small">
                 Agent code already in use — pick a different one.
               </span>
             )}
           </label>
-          <label className="new-agent__field">
-            <span className="new-agent__field-label">Agent name</span>
+          <label className="new-scenario__field">
+            <span className="new-scenario__field-label">Agent name</span>
             <input
-              className="new-agent__input"
+              className="new-scenario__input"
               type="text"
               value={draft.agentName}
               onChange={(e) => update('agentName', e.target.value)}
               placeholder="e.g. Avery Smith"
             />
           </label>
-          <label className="new-agent__field">
-            <span className="new-agent__field-label">Agent email</span>
+          <label className="new-scenario__field">
+            <span className="new-scenario__field-label">Agent email</span>
             <input
-              className={`new-agent__input ${emailInvalid ? 'invalid' : ''}`}
+              className={`new-scenario__input ${emailInvalid ? 'invalid' : ''}`}
               type="email"
               value={draft.agentEmail}
               onChange={(e) => update('agentEmail', e.target.value)}
@@ -200,7 +200,7 @@ export function NewAgentForm({ existingCodes, onSave, onCancel, initialAgent = n
               autoComplete="off"
             />
             {emailInvalid && (
-              <span className="new-agent__field-error small">
+              <span className="new-scenario__field-error small">
                 Doesn't look like a valid email address.
               </span>
             )}
@@ -208,12 +208,12 @@ export function NewAgentForm({ existingCodes, onSave, onCancel, initialAgent = n
         </div>
       </div>
 
-      <div className="new-agent__section">
+      <div className="new-scenario__section">
         <span className="new-program__label">Attributes</span>
-        <div className="new-agent__grid">
+        <div className="new-scenario__grid">
           {ATTRIBUTE_SCHEMA.map((attr) => (
-            <label className="new-agent__field" key={attr.name}>
-              <span className="new-agent__field-label">
+            <label className="new-scenario__field" key={attr.name}>
+              <span className="new-scenario__field-label">
                 {attr.label}
                 <span className="muted small"> · {attr.dmnType}</span>
               </span>
@@ -234,7 +234,7 @@ export function NewAgentForm({ existingCodes, onSave, onCancel, initialAgent = n
           onClick={handleSave}
           disabled={!canSave}
         >
-          {editing ? 'Save Changes' : 'Save Agent'}
+          {editing ? 'Save Changes' : 'Save Scenario'}
         </button>
       </div>
     </div>

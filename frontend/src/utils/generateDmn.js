@@ -215,8 +215,8 @@ ${outputEntriesXml(fallbackIdx, fallbackValues)}
              xmlns:modeler="http://camunda.org/schema/modeler/1.0"
              id="Definitions_${id}"
              name="${escapedName}"
-             namespace="http://camunda.org/schema/dmn/nyl/lead-program/${id}"
-             exporter="NYL Lead Program Builder"
+             namespace="http://camunda.org/schema/dmn/lead-program/${id}"
+             exporter="Lead Program Builder"
              exporterVersion="1.0"
              modeler:executionPlatform="Camunda Cloud"
              modeler:executionPlatformVersion="8.9.0">

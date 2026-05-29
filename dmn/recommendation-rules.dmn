@@ -6,7 +6,7 @@
              xmlns:modeler="http://camunda.org/schema/modeler/1.0"
              id="Definitions_RecommendationRules"
              name="Recommendation Rules"
-             namespace="http://camunda.org/schema/dmn/nyl/recommendation"
+             namespace="http://camunda.org/schema/dmn/lead-program/recommendation"
              exporter="Claude Code"
              exporterVersion="1.0"
              modeler:executionPlatform="Camunda Cloud"
@@ -27,9 +27,9 @@
         </inputExpression>
       </input>
 
-      <input id="Input_NylicuTraining" label="NYLIC Training">
-        <inputExpression id="InputExpression_NylicuTraining" typeRef="string">
-          <text>nylicuTraining</text>
+      <input id="Input_CertificationTraining" label="Certification Training">
+        <inputExpression id="InputExpression_CertificationTraining" typeRef="string">
+          <text>certificationTraining</text>
         </inputExpression>
       </input>
 
@@ -58,13 +58,13 @@
       </rule>
 
       <rule id="Rule_R3_Training">
-        <description>NYLIC University training off-track: prompt completion to maintain eligibility.</description>
+        <description>Certification training off-track: prompt completion to maintain eligibility.</description>
         <inputEntry id="InputEntry_R3_Council"><text></text></inputEntry>
         <inputEntry id="InputEntry_R3_AttemptRate"><text></text></inputEntry>
         <inputEntry id="InputEntry_R3_Training"><text>"Not On Track"</text></inputEntry>
         <outputEntry id="OutputEntry_R3_Type"><text>"training"</text></outputEntry>
-        <outputEntry id="OutputEntry_R3_Text"><text>"Complete NYLIC University training to maintain program eligibility"</text></outputEntry>
-        <outputEntry id="OutputEntry_R3_Link"><text>"/training/nylic-university"</text></outputEntry>
+        <outputEntry id="OutputEntry_R3_Text"><text>"Complete certification training to maintain program eligibility"</text></outputEntry>
+        <outputEntry id="OutputEntry_R3_Link"><text>"/training/certification"</text></outputEntry>
       </rule>
 
     </decisionTable>

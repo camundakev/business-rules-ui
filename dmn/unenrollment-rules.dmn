@@ -6,7 +6,7 @@
              xmlns:modeler="http://camunda.org/schema/modeler/1.0"
              id="Definitions_UnenrollmentRules"
              name="Unenrollment Rules"
-             namespace="http://camunda.org/schema/dmn/nyl/unenrollment"
+             namespace="http://camunda.org/schema/dmn/lead-program/unenrollment"
              exporter="Claude Code"
              exporterVersion="1.0"
              modeler:executionPlatform="Camunda Cloud"

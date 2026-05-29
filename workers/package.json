@@ -1,9 +1,9 @@
 {
-  "name": "nyl-rules-poc-workers",
+  "name": "lead-programs-poc-workers",
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Job workers for the NYL Lead Programs Management PoC (auto-unenroll-agent, hold-agent-status).",
+  "description": "Job workers for the Lead Programs Management PoC (auto-unenroll-agent, hold-agent-status).",
   "scripts": {
     "start": "node --env-file=../.env index.js",
     "dev": "node --env-file=../.env --watch index.js"

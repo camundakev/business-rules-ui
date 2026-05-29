@@ -76,8 +76,8 @@ export const ATTRIBUTE_SCHEMA = [
     values: ['—', '2 Months behind', '4+ Months behind'],
   },
   {
-    name: 'nylicuTraining',
-    label: 'NYLIC University Training',
+    name: 'certificationTraining',
+    label: 'Certification Training',
     dmnType: 'string',
     inputControl: 'dropdown',
     values: ['On Track', 'Not On Track'],

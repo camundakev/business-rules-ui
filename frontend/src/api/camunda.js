@@ -112,7 +112,7 @@ export function listDecisionInstances({ filter, sort, page } = {}) {
   });
 }
 
-// ─── Agent Simulator ─────────────────────────────────────────────────────────
+// ─── Scenario Simulator ──────────────────────────────────────────────────────
 
 export function startProcessInstance({
   processDefinitionId,
